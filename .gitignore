@@ -1,0 +1,67 @@
+# ===========================================
+# SmartAds Git Ignore
+# ===========================================
+
+# ----- Logs -----
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ----- Dependencies -----
+node_modules
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+
+# ----- Build Outputs -----
+dist
+dist-ssr
+build/
+*.egg-info/
+.eggs/
+
+# ----- Environment Files -----
+*.local
+.env
+.env.local
+.env.*.local
+backend/.env
+# Keep the sanitized environment template tracked.
+
+# ----- Editor directories and files -----
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ----- Testing -----
+coverage/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ----- Uploads (keep folder, ignore contents) -----
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ----- Misc -----
+*.bak
+*.tmp
+.cache/
+
+# Assignment capture state is intentionally kept outside committed logs.
+.agent-logs/.capture-state.json
+

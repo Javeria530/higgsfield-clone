@@ -1,0 +1,10 @@
+flask
+pymongo
+flask-cors
+python-dotenv
+werkzeug
+google-genai
+cloudinary
+bcrypt
+requests
+requests-oauthlib
