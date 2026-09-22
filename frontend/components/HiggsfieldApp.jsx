@@ -19,7 +19,7 @@ import {
   WandSparkles,
   X,
 } from 'lucide-react';
-import { designAPI, templateAPI, videoAdAPI } from '../services/api.js';
+import { designAPI, templateAPI, videoAdAPI, voiceAPI } from '../services/api.js';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 const galleryKey = 'higgsfield-creation-gallery';
@@ -57,6 +57,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed }) {
     { id: 'explore', label: 'Explore', icon: Grid2X2 },
     { id: 'image', label: 'Image studio', icon: ImageIcon },
     { id: 'video', label: 'Video studio', icon: Film },
+    { id: 'voice', label: 'Voice studio', icon: Mic2 },
     { id: 'templates', label: 'Effects & templates', icon: WandSparkles },
     { id: 'history', label: 'My creations', icon: Clock3 },
   ];
@@ -71,7 +72,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed }) {
 }
 
 function Topbar({ page, onMenu }) {
-  const labels = { explore: 'Explore', image: 'Image studio', video: 'Video studio', templates: 'Effects & templates', history: 'My creations' };
+  const labels = { explore: 'Explore', image: 'Image studio', video: 'Video studio', voice: 'Voice studio', templates: 'Effects & templates', history: 'My creations' };
   return <header className="topbar"><button className="mobile-menu icon-button" onClick={onMenu} aria-label="Open navigation"><Menu size={19} /></button><div><span className="eyebrow">Workspace</span><h1>{labels[page]}</h1></div><div className="topbar-actions"><button className="search-button"><Search size={17} /><span>Search</span><kbd>⌘ K</kbd></button><button className="credits"><Sparkles size={14} /> 120 credits</button><button className="avatar-button">J</button></div></header>;
 }
 
@@ -129,6 +130,25 @@ function VideoStudio({ onSaved }) {
   return <div className="studio-page"><StudioHeader icon={Film} title="Video studio" description="Give your ideas movement, atmosphere, and a point of view." /><div className="studio-grid"><section className="studio-controls"><PromptComposer value={prompt} onChange={setPrompt} placeholder="Describe the story, camera, movement, and mood..." onUpload={() => {}} fileName={fileName} setFileName={setFileName} /><div className="enhance-row"><button className="secondary-button" onClick={async () => { try { const data = await videoAdAPI.enhancePrompt({ productName: 'Creative concept', productDescription: prompt, productCategory: 'Editorial', keyFeatures: motion }); setPrompt(data.enhancedPrompt || prompt); } catch (enhanceError) { setError(enhanceError.message || 'Prompt enhancement failed.'); } }}><WandSparkles size={15} /> Enhance prompt</button><span>{fileName || 'Veo generation can take a few minutes'}</span></div><div className="settings-grid"><SettingSelect label="Model" value={model} onChange={setModel} options={['Veo 3.1', 'Veo fast', 'SmartAds video']} /><SettingSelect label="Format" value={ratio} onChange={setRatio} options={['Landscape 16:9', 'Portrait 9:16', 'Square 1:1']} /><SettingSelect label="Motion" value={motion} onChange={setMotion} options={['Cinematic', 'Product reveal', 'Handheld', 'Slow motion']} /></div>{error && <div className="error-banner"><X size={16} />{error}</div>}<button className="generate-button" onClick={generate} disabled={busy}>{busy ? <><span className="button-spinner" /> Rendering video...</> : <><Film size={17} /> Generate video</>}</button><div className="tip-row"><span>Tip</span> Describe the camera movement and the feeling of the final frame.</div></section><section className="result-column">{busy ? <LoadingState type="video" /> : <ResultPanel result={result} type="video" onDownload={(url) => window.open(url, '_blank', 'noopener,noreferrer')} />}</section></div></div>;
 }
 
+function VoiceStudio() {
+  const [script, setScript] = useState('Your next idea deserves to be heard.');
+  const [voice, setVoice] = useState('Warm narrator');
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const generate = async () => {
+    if (!script.trim()) return setError('Write a script before generating.');
+    setBusy(true); setError('');
+    try {
+      const response = await voiceAPI.generateVoice({ text: script, voice_id: voice });
+      setResult(response.url || response.audioUrl || response.cloudinaryUrl);
+    } catch (generationError) {
+      setError(generationError.message || 'Voice generation failed.');
+    } finally { setBusy(false); }
+  };
+  return <div className="studio-page"><StudioHeader icon={Mic2} title="Voice studio" description="Give your creative work a voice with the existing SmartAds audio integration." /><div className="studio-grid"><section className="studio-controls"><div className="prompt-composer"><textarea value={script} onChange={(event) => setScript(event.target.value)} placeholder="Write the script you want to hear..." rows={7} /><div className="prompt-toolbar"><span className="tool-button"><Mic2 size={16} /> Voice direction</span><span className="prompt-count">{script.length}/2000</span></div></div><div className="settings-grid"><SettingSelect label="Voice" value={voice} onChange={setVoice} options={['Warm narrator', 'Confident guide', 'Soft storyteller']} /><SettingSelect label="Language" value="English" onChange={() => {}} options={['English', 'Urdu', 'Hindi']} /><SettingSelect label="Mood" value="Clear" onChange={() => {}} options={['Clear', 'Energetic', 'Calm']} /></div>{error && <div className="error-banner"><X size={16} />{error}</div>}<button className="generate-button" onClick={generate} disabled={busy}>{busy ? <><span className="button-spinner" /> Generating voice...</> : <><Mic2 size={17} /> Generate voice</>}</button></section><section className="result-column">{busy ? <LoadingState type="voice track" /> : result ? <div className="result-panel"><div className="audio-result"><Mic2 size={30} /><strong>Your voice track is ready</strong><audio src={result} controls /></div></div> : <div className="empty-result"><div className="empty-glyph"><Mic2 size={25} /></div><strong>Your voice track will appear here</strong><span>Write a short script and choose a voice to begin.</span></div>}</section></div></div>;
+}
+
 function Explore({ setPage }) {
   return <div className="page-content"><div className="hero-banner"><div><span className="eyebrow accent">THE NEW CREATIVE SPACE</span><h2>Make images that<br /><em>feel like something.</em></h2><p>Explore a world of visual possibilities, then make one of your own.</p><button className="primary-button" onClick={() => setPage('image')}>Start creating <ArrowUpRight size={16} /></button></div><div className="hero-art"><div className="hero-orb" /><span>01 / 04</span></div></div><div className="section-heading"><div><span className="eyebrow">CURATED FOR YOU</span><h2>Find your next direction</h2></div><button className="text-button">View all <ArrowUpRight size={15} /></button></div><div className="inspiration-grid">{inspiration.map((item) => <article className="inspiration-card" key={item.title}><img src={item.image} alt="" /><div className="card-shade" /><div className="card-copy"><span>{item.meta}</span><strong>{item.title}</strong></div><button className="card-action" onClick={() => setPage(item.meta.startsWith('Video') ? 'video' : 'image')} aria-label={`Use ${item.title}`}><ArrowUpRight size={17} /></button></article>)}</div><div className="section-heading compact"><div><span className="eyebrow">QUICK START</span><h2>Start with a template</h2></div><button className="text-button" onClick={() => setPage('templates')}>Browse templates <ArrowUpRight size={15} /></button></div><div className="template-strip">{templates.slice(0, 3).map((item) => <button className="template-mini" key={item.title} onClick={() => setPage(item.type === 'Video' ? 'video' : 'image')}><img src={item.image} alt="" /><span><small>{item.type}</small><strong>{item.title}</strong></span><ArrowUpRight size={15} /></button>)}</div></div>;
 }
@@ -146,5 +166,5 @@ function History({ gallery, setPage }) {
 export default function HiggsfieldApp() {
   const [page, setPage] = useState('explore'); const [collapsed, setCollapsed] = useState(false); const [mobileOpen, setMobileOpen] = useState(false); const [gallery, setGallery] = useState(readGallery);
   const go = (next) => { setPage(next); setMobileOpen(false); };
-  return <div className="app-shell"><div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}><Sidebar page={page} setPage={go} collapsed={false} setCollapsed={() => setMobileOpen(false)} /></div><Sidebar page={page} setPage={go} collapsed={collapsed} setCollapsed={setCollapsed} /><main className="main-area"><Topbar page={page} onMenu={() => setMobileOpen(true)} />{page === 'explore' && <Explore setPage={go} />}{page === 'image' && <ImageStudio onSaved={setGallery} />}{page === 'video' && <VideoStudio onSaved={setGallery} />}{page === 'templates' && <Templates setPage={go} />}{page === 'history' && <History gallery={gallery} setPage={go} />}</main></div>;
+  return <div className="app-shell"><div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}><Sidebar page={page} setPage={go} collapsed={false} setCollapsed={() => setMobileOpen(false)} /></div><Sidebar page={page} setPage={go} collapsed={collapsed} setCollapsed={setCollapsed} /><main className="main-area"><Topbar page={page} onMenu={() => setMobileOpen(true)} />{page === 'explore' && <Explore setPage={go} />}{page === 'image' && <ImageStudio onSaved={setGallery} />}{page === 'video' && <VideoStudio onSaved={setGallery} />}{page === 'voice' && <VoiceStudio />}{page === 'templates' && <Templates setPage={go} />}{page === 'history' && <History gallery={gallery} setPage={go} />}</main></div>;
 }
