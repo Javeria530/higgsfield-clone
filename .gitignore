@@ -65,3 +65,4 @@ backend/uploads/*
 # Assignment capture state is intentionally kept outside committed logs.
 .agent-logs/.capture-state.json
 
+.vercel
