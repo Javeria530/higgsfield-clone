@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { videoAdAPI } from '../../services/api';
 import { useTheme } from '../../context/ThemeContext';
 import { hasVulgarity } from '../../utils/profanityFilter';
-import { Video, Loader2, Download, Maximize2, X, Share2 } from "lucide-react";
+import { Video, Loader2, Download, Maximize2, X, Share2, Sparkles } from "lucide-react";
 import SocialMediaPublisher from './SocialMediaPublisher';
 
 const initialProduct = {
@@ -44,6 +44,25 @@ const VideoAdModule = ({ initialData = null }) => {
     }
 
     setProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEnhancePrompt = async () => {
+    if (!product.productDescription.trim()) {
+      alert("Please enter a basic description first to enhance.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const enhanceRes = await videoAdAPI.enhancePrompt(product);
+      if (enhanceRes.enhancedPrompt) {
+        setProduct((prev) => ({ ...prev, productDescription: enhanceRes.enhancedPrompt }));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error enhancing prompt");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -160,6 +179,30 @@ const VideoAdModule = ({ initialData = null }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>Product Description * <span style={{ fontSize: '0.8rem', color: colors.text2, fontWeight: 400 }}>(Text only)</span></div>
               <textarea name="productDescription" placeholder="Describe in detail..." value={product.productDescription} onChange={handleChange} required style={{ padding: '10px', borderRadius: 8, border: `1px solid ${colors.border}`, fontSize: '0.95rem', minHeight: 60, resize: 'vertical', background: colors.bg2, color: colors.text1 }} />
+              <button
+                type="button"
+                onClick={handleEnhancePrompt}
+                disabled={loading || !product.productDescription.trim()}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: 6,
+                  padding: "6px 12px",
+                  borderRadius: 8,
+                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary || colors.primary})`,
+                  color: "white",
+                  border: "none",
+                  cursor: (loading || !product.productDescription.trim()) ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontWeight: "600",
+                  fontSize: "0.85rem",
+                  opacity: (loading || !product.productDescription.trim()) ? 0.6 : 1,
+                }}
+              >
+                <Sparkles size={14} />
+                {loading ? "Enhancing..." : "✨ Enhance Description"}
+              </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>

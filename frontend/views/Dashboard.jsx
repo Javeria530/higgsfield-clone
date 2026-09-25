@@ -59,6 +59,7 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
   const [generatedResult, setGeneratedResult] = useState(null);
   const [fullScreenImage, setFullScreenImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [priceValue, setPriceValue] = useState("");
   const [captionType, setCaptionType] = useState("without_caption");
 
@@ -225,6 +226,31 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
       alert("Network error: " + error.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEnhancePrompt = async () => {
+    if (!descriptionValue.trim()) {
+      alert("Please enter a basic description first to enhance.");
+      return;
+    }
+    setIsEnhancing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/enhance-design-prompt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: descriptionValue }),
+      });
+      const data = await response.json();
+      if (response.ok && data.enhancedPrompt) {
+        setDescriptionValue(data.enhancedPrompt);
+      } else {
+        alert(data.error || "Failed to enhance prompt");
+      }
+    } catch (err) {
+      alert("Error enhancing prompt");
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -725,6 +751,31 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
                       boxSizing: "border-box"
                     }}
                   />
+                  
+                  <button
+                    type="button"
+                    onClick={handleEnhancePrompt}
+                    disabled={isEnhancing || !descriptionValue.trim()}
+                    style={{
+                      alignSelf: 'flex-start',
+                      marginBottom: "16px",
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary || colors.primary})`,
+                      color: "white",
+                      border: "none",
+                      cursor: (isEnhancing || !descriptionValue.trim()) ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      fontWeight: "600",
+                      fontSize: "0.85rem",
+                      opacity: (isEnhancing || !descriptionValue.trim()) ? 0.6 : 1,
+                    }}
+                  >
+                    <Sparkles size={14} />
+                    {isEnhancing ? "Enhancing..." : "✨ Enhance Description"}
+                  </button>
 
                   {/* Price */}
                   <label style={{ color: colors.text1, display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "15px" }}>

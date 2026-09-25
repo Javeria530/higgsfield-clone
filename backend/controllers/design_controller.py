@@ -39,6 +39,20 @@ def generate_design():
         print(traceback.format_exc())
         return jsonify({"error": "Generation failed", "details": str(e)}), 500
 
+@design_controller.route("/enhance-design-prompt", methods=["POST"])
+def enhance_prompt():
+    """Enhance a prompt using AI"""
+    try:
+        data = request.get_json(silent=True) or {}
+        prompt = data.get("prompt", "")
+        if not prompt:
+            return jsonify({"error": "prompt is required"}), 400
+        
+        enhanced = DesignService.enhance_prompt(prompt)
+        return jsonify({"enhancedPrompt": enhanced}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @design_controller.route("/designs", methods=["GET"])
 def list_designs():

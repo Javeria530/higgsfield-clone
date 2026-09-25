@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Rocket, X, Upload } from "lucide-react";
+import { Rocket, X, Upload, Sparkles } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "../components/common/ThemeToggle";
@@ -11,6 +11,7 @@ const LogoDesigner = ({ onNavigate }) => {
   
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [price, setPrice] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]); // Can be multiple
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -67,6 +68,33 @@ const LogoDesigner = ({ onNavigate }) => {
   // Remove image from selection
   const removeImage = (id) => {
     setUploadedImages(prev => prev.filter(img => img.id !== id));
+  };
+
+  // Handle enhance prompt
+  const handleEnhancePrompt = async () => {
+    if (!description.trim()) {
+      setMessage("Please enter a basic description first to enhance.");
+      return;
+    }
+    setIsEnhancing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/enhance-design-prompt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: description }),
+      });
+      const data = await response.json();
+      if (response.ok && data.enhancedPrompt) {
+        setDescription(data.enhancedPrompt);
+        setMessage("✨ Prompt enhanced successfully!");
+      } else {
+        setMessage(data.error || "Failed to enhance prompt");
+      }
+    } catch (err) {
+      setMessage("Error enhancing prompt");
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   // Handle generate
@@ -315,7 +343,7 @@ const LogoDesigner = ({ onNavigate }) => {
             flexDirection: "column",
             gap: 25,
             width: "100%",
-            maxWidth: 650,
+            maxWidth: 900,
             background: colors.cardBg,
             padding: 45,
             borderRadius: 20,
@@ -395,6 +423,29 @@ const LogoDesigner = ({ onNavigate }) => {
                 e.target.style.boxShadow = "none";
               }}
             />
+            
+            <button
+              onClick={handleEnhancePrompt}
+              disabled={isEnhancing || !description.trim()}
+              style={{
+                marginTop: 10,
+                padding: "8px 16px",
+                borderRadius: 8,
+                background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                color: "white",
+                border: "none",
+                cursor: (isEnhancing || !description.trim()) ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                opacity: (isEnhancing || !description.trim()) ? 0.6 : 1,
+              }}
+            >
+              <Sparkles size={16} />
+              {isEnhancing ? "Enhancing..." : "✨ Enhance Prompt via AI"}
+            </button>
           </div>
 
           {/* Price */}

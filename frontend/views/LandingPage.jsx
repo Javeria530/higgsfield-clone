@@ -152,8 +152,8 @@ const LandingPage = ({ onNavigate }) => {
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: 32,
+          gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))",
+          gap: 40,
         }}>
           {features.map((f, i) => (
             <div
@@ -167,7 +167,7 @@ const LandingPage = ({ onNavigate }) => {
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
               style={{
-                padding: 40,
+                padding: 48,
                 borderRadius: 24,
                 background: colors.bg2,
                 border: `1px solid ${hovered === i ? colors.primary + "44" : colors.border}`,

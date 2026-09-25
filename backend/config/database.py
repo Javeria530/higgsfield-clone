@@ -15,10 +15,10 @@ def init_db():
         client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000)
         client.admin.command("ping")
         db = client[DATABASE_NAME]
-        print("✅ MongoDB Connected Successfully")
+        print("- MongoDB Connected Successfully")
         return db
     except Exception as e:
-        print("❌ MongoDB Connection Error:", e)
+        print("x MongoDB Connection Error:", e)
         raise e
 
 def get_db():
