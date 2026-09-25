@@ -12,7 +12,8 @@ def init_db():
     """Initialize database connection"""
     global client, db
     try:
-        client = MongoClient(MONGO_URI)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000)
+        client.admin.command("ping")
         db = client[DATABASE_NAME]
         print("✅ MongoDB Connected Successfully")
         return db

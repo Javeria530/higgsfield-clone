@@ -6,7 +6,7 @@ import {
 import { useTheme } from '../../context/ThemeContext.jsx';
 import {
   generateMarketingImage,
-  generateAndSaveImage,
+  saveGeneratedImage,
   getImageGallery,
   deleteFromGallery,
   downloadImage
@@ -58,8 +58,8 @@ const ImageGenerator = ({ onClose, initialPrompt = '' }) => {
       const imageUrl = await generateMarketingImage(prompt, type);
       setGeneratedImage({ url: imageUrl, type, prompt });
 
-      // Auto-save to gallery
-      const imageEntry = await generateAndSaveImage(prompt, type);
+      // Save the already generated result instead of generating it twice.
+      const imageEntry = saveGeneratedImage(imageUrl, prompt, type);
       setGallery(prev => [imageEntry, ...prev]);
     } catch (err) {
       setError(`Failed to generate ${type}: ${err.message}`);

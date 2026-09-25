@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_BASE_URL } from '../utils/constants';
+import { authAPI } from '../services/api.js';
 
 const AuthContext = createContext();
 
@@ -8,7 +9,6 @@ export const ALL_FEATURES = [
   { id: 'poster', name: 'Poster Creator', icon: '📄', category: 'Design' },
   { id: 'video', name: 'Video Generator', icon: '🎬', category: 'Video' },
   { id: 'caption', name: 'Caption Writer', icon: '✍️', category: 'Content' },
-  { id: 'voiceover', name: 'Voiceover Maker', icon: '🎤', category: 'Audio' },
   { id: 'analytics', name: 'Analytics', icon: '📊', category: 'Analytics' },
   { id: 'templates', name: 'Template Manager', icon: '📋', category: 'Management' },
   { id: 'users', name: 'User Management', icon: '👥', category: 'Management' },
@@ -56,42 +56,19 @@ export const AuthProvider = ({ children }) => {
 
   // Login for head user or sub-user
   const login = async ({ email, password }) => {
-    try {
-      // Try backend API login first
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const data = await authAPI.login(email, password);
+    if (!data.success || !data.user) throw new Error('Invalid credentials');
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Backend login successful, create user object
-        const backendUser = {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.fullName,
-          role: data.user.role,
-          isHeadUser: true,
-          allowedFeatures: ALL_FEATURES.map(f => f.id),
-        };
-        setUser(backendUser);
-        return backendUser;
-      }
-    } catch (backendError) {
-      console.log("Backend login failed, trying local:", backendError.message);
-    }
-
-    // Fallback to local storage login
-    const foundUser = users.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    if (!foundUser) throw new Error('Invalid credentials');
-    setUser(foundUser);
-    return foundUser;
+    const backendUser = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.fullName,
+      role: data.user.role,
+      isHeadUser: true,
+      allowedFeatures: ALL_FEATURES.map(f => f.id),
+    };
+    setUser(backendUser);
+    return backendUser;
   };
 
   const logout = () => setUser(null);

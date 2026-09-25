@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { createElement, useEffect, useState } from 'react';
 import {
   ArrowUpRight,
   ChevronDown,
@@ -8,72 +8,33 @@ import {
   Grid2X2,
   Image as ImageIcon,
   Layers3,
-  Menu,
   Mic2,
   MoreHorizontal,
   Plus,
-  Search,
-  Settings2,
   Sparkles,
+  Sun,
   Upload,
   WandSparkles,
   X,
+  Moon,
 } from 'lucide-react';
-import { designAPI, templateAPI, videoAdAPI, voiceAPI } from '../services/api.js';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
-const galleryKey = 'higgsfield-creation-gallery';
-
-const inspiration = [
-  { title: 'Glass skin / liquid chrome', meta: 'Image · Editorial', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=900&q=85' },
-  { title: 'The quiet luxury campaign', meta: 'Video · 16:9', image: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=900&q=85' },
-  { title: 'Neon after midnight', meta: 'Image · Concept', image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85' },
-  { title: 'Objects with a point of view', meta: 'Video · Product', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85' },
-];
-
-const templates = [
-  { title: 'Product film', type: 'Video', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85' },
-  { title: 'Material studies', type: 'Image', image: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=900&q=85' },
-  { title: 'Editorial portrait', type: 'Image', image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=85' },
-  { title: 'Motion type', type: 'Video', image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85' },
-];
-
-const readGallery = () => {
-  try {
-    return JSON.parse(localStorage.getItem(galleryKey) || '[]');
-  } catch {
-    return [];
-  }
-};
-
-const saveGallery = (items) => localStorage.setItem(galleryKey, JSON.stringify(items));
+import { designAPI, templateAPI, videoAdAPI } from '../services/api.js';
+import Footer from './common/Footer.jsx';
 
 function Logo() {
-  return <div className="brand"><span className="brand-mark"><Sparkles size={15} /></span><span>higgsfield</span></div>;
+  return <div className="brand"><span className="brand-mark"><Sparkles size={15} /></span><span>Javeria's studio</span></div>;
 }
 
-function Sidebar({ page, setPage, collapsed, setCollapsed }) {
-  const items = [
+function Topbar({ page, onNavigate, isDark, onToggleTheme }) {
+  const labels = { explore: 'Explore', image: 'Image studio', video: 'Video studio', templates: 'Effects & templates', history: 'My creations' };
+  const navItems = [
     { id: 'explore', label: 'Explore', icon: Grid2X2 },
-    { id: 'image', label: 'Image studio', icon: ImageIcon },
-    { id: 'video', label: 'Video studio', icon: Film },
-    { id: 'voice', label: 'Voice studio', icon: Mic2 },
-    { id: 'templates', label: 'Effects & templates', icon: WandSparkles },
-    { id: 'history', label: 'My creations', icon: Clock3 },
+    { id: 'image', label: 'Image', icon: ImageIcon },
+    { id: 'video', label: 'Video', icon: Film },
+    { id: 'templates', label: 'Templates', icon: WandSparkles },
+    { id: 'history', label: 'Library', icon: Clock3 },
   ];
-  return <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
-    <div className="sidebar-top"><Logo /><button className="icon-button sidebar-toggle" onClick={() => setCollapsed(!collapsed)} aria-label="Toggle navigation"><Menu size={18} /></button></div>
-    <div className="workspace-switch"><span className="workspace-avatar">J</span><span className="workspace-copy"><strong>Javeria's studio</strong><small>Personal workspace</small></span><ChevronDown size={15} /></div>
-    <nav className="nav-list">{items.map(({ id, label, icon: Icon }) => <button key={id} className={`nav-item ${page === id ? 'active' : ''}`} onClick={() => setPage(id)}><Icon size={18} /><span>{label}</span></button>)}</nav>
-    <div className="sidebar-spacer" />
-    <div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={16} /></div><strong>Make something impossible</strong><p>Unlock more generations and models.</p><button onClick={() => setPage('image')}>Explore plans <ArrowUpRight size={14} /></button></div>
-    <div className="sidebar-footer"><button className="nav-item"><Settings2 size={18} /><span>Settings</span></button><div className="profile-row"><span className="profile-avatar">J</span><span className="profile-copy"><strong>Javeria</strong><small>Free plan</small></span><MoreHorizontal size={17} /></div></div>
-  </aside>;
-}
-
-function Topbar({ page, onMenu }) {
-  const labels = { explore: 'Explore', image: 'Image studio', video: 'Video studio', voice: 'Voice studio', templates: 'Effects & templates', history: 'My creations' };
-  return <header className="topbar"><button className="mobile-menu icon-button" onClick={onMenu} aria-label="Open navigation"><Menu size={19} /></button><div><span className="eyebrow">Workspace</span><h1>{labels[page]}</h1></div><div className="topbar-actions"><button className="search-button"><Search size={17} /><span>Search</span><kbd>⌘ K</kbd></button><button className="credits"><Sparkles size={14} /> 120 credits</button><button className="avatar-button">J</button></div></header>;
+  return <header className="topbar"><div className="topbar-brand"><Logo /><div className="topbar-title"><span className="eyebrow">Javeria / workspace</span><h1>{labels[page]}</h1></div></div><nav className="topbar-nav" aria-label="Workspace navigation">{navItems.map((item) => <button key={item.id} className={`topbar-nav-item ${page === item.id ? 'active' : ''}`} onClick={() => onNavigate(item.id)} title={item.label} aria-label={item.label}>{createElement(item.icon, { size: 16 })}<span>{item.label}</span></button>)}</nav><div className="topbar-actions"><button className="theme-toggle" onClick={onToggleTheme} aria-label={isDark ? 'Use light mode' : 'Use dark mode'}>{isDark ? <Sun size={17} /> : <Moon size={17} />}</button><button className="avatar-button">J</button></div></header>;
 }
 
 function PromptComposer({ value, onChange, placeholder, onUpload, fileName, setFileName }) {
@@ -84,8 +45,8 @@ function SettingSelect({ label, value, options, onChange }) {
   return <label className="setting"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option}>{option}</option>)}</select><ChevronDown size={14} /></label>;
 }
 
-function StudioHeader({ icon: Icon, title, description }) {
-  return <div className="studio-header"><div className="studio-icon"><Icon size={20} /></div><div><h2>{title}</h2><p>{description}</p></div></div>;
+function StudioHeader({ icon, title, description }) {
+  return <div className="studio-header"><div className="studio-icon">{createElement(icon, { size: 20 })}</div><div><h2>{title}</h2><p>{description}</p></div></div>;
 }
 
 function LoadingState({ type }) {
@@ -113,7 +74,7 @@ function ImageStudio({ onSaved }) {
     try {
       const response = await designAPI.generateDesign({ type: 'poster', brandName: 'Higgsfield Studio', description: prompt, style: `${style}, ${model}, ${ratio}`, colors: [] });
       const next = { id: crypto.randomUUID(), url: response.url, type: 'image', prompt, createdAt: new Date().toISOString() };
-      setResult(next); const gallery = [next, ...readGallery()]; saveGallery(gallery); onSaved(gallery);
+      setResult(next); onSaved(next);
     } catch (generationError) { setError(generationError.message || 'Image generation failed. Check your backend connection.'); }
     finally { setBusy(false); }
   };
@@ -126,45 +87,40 @@ function VideoStudio({ onSaved }) {
   const [ratio, setRatio] = useState('Landscape 16:9');
   const [motion, setMotion] = useState('Cinematic');
   const [result, setResult] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [fileName, setFileName] = useState('');
-  const generate = async () => { if (!prompt.trim()) return setError('Write a prompt before generating.'); setBusy(true); setError(''); try { const response = await videoAdAPI.generateVideo({ prompt }); const next = { id: crypto.randomUUID(), url: response.url || response.videoUrl || response.cloudinaryUrl, type: 'video', prompt, createdAt: new Date().toISOString() }; if (!next.url) throw new Error('The backend returned no video URL.'); setResult(next); const gallery = [next, ...readGallery()]; saveGallery(gallery); onSaved(gallery); } catch (generationError) { setError(generationError.message || 'Video generation failed.'); } finally { setBusy(false); } };
+  const generate = async () => { if (!prompt.trim()) return setError('Write a prompt before generating.'); setBusy(true); setError(''); try { const response = await videoAdAPI.generateVideo({ prompt }); const next = { id: crypto.randomUUID(), url: response.url || response.videoUrl || response.cloudinaryUrl, type: 'video', prompt, createdAt: new Date().toISOString() }; if (!next.url) throw new Error('The backend returned no video URL.'); setResult(next); onSaved(next); } catch (generationError) { setError(generationError.message || 'Video generation failed.'); } finally { setBusy(false); } };
   return <div className="studio-page"><StudioHeader icon={Film} title="Video studio" description="Give your ideas movement, atmosphere, and a point of view." /><div className="studio-grid"><section className="studio-controls"><PromptComposer value={prompt} onChange={setPrompt} placeholder="Describe the story, camera, movement, and mood..." onUpload={() => {}} fileName={fileName} setFileName={setFileName} /><div className="enhance-row"><button className="secondary-button" onClick={async () => { try { const data = await videoAdAPI.enhancePrompt({ productName: 'Creative concept', productDescription: prompt, productCategory: 'Editorial', keyFeatures: motion }); setPrompt(data.enhancedPrompt || prompt); } catch (enhanceError) { setError(enhanceError.message || 'Prompt enhancement failed.'); } }}><WandSparkles size={15} /> Enhance prompt</button><span>{fileName || 'Veo generation can take a few minutes'}</span></div><div className="settings-grid"><SettingSelect label="Model" value={model} onChange={setModel} options={['Veo 3.1', 'Veo fast', 'SmartAds video']} /><SettingSelect label="Format" value={ratio} onChange={setRatio} options={['Landscape 16:9', 'Portrait 9:16', 'Square 1:1']} /><SettingSelect label="Motion" value={motion} onChange={setMotion} options={['Cinematic', 'Product reveal', 'Handheld', 'Slow motion']} /></div>{error && <div className="error-banner"><X size={16} />{error}</div>}<button className="generate-button" onClick={generate} disabled={busy}>{busy ? <><span className="button-spinner" /> Rendering video...</> : <><Film size={17} /> Generate video</>}</button><div className="tip-row"><span>Tip</span> Describe the camera movement and the feeling of the final frame.</div></section><section className="result-column">{busy ? <LoadingState type="video" /> : <ResultPanel result={result} type="video" onDownload={(url) => window.open(url, '_blank', 'noopener,noreferrer')} />}</section></div></div>;
 }
 
-function VoiceStudio() {
-  const [script, setScript] = useState('Your next idea deserves to be heard.');
-  const [voice, setVoice] = useState('Warm narrator');
-  const [result, setResult] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const generate = async () => {
-    if (!script.trim()) return setError('Write a script before generating.');
-    setBusy(true); setError('');
-    try {
-      const response = await voiceAPI.generateVoice({ text: script, voice_id: voice });
-      setResult(response.url || response.audioUrl || response.cloudinaryUrl);
-    } catch (generationError) {
-      setError(generationError.message || 'Voice generation failed.');
-    } finally { setBusy(false); }
-  };
-  return <div className="studio-page"><StudioHeader icon={Mic2} title="Voice studio" description="Give your creative work a voice with the existing SmartAds audio integration." /><div className="studio-grid"><section className="studio-controls"><div className="prompt-composer"><textarea value={script} onChange={(event) => setScript(event.target.value)} placeholder="Write the script you want to hear..." rows={7} /><div className="prompt-toolbar"><span className="tool-button"><Mic2 size={16} /> Voice direction</span><span className="prompt-count">{script.length}/2000</span></div></div><div className="settings-grid"><SettingSelect label="Voice" value={voice} onChange={setVoice} options={['Warm narrator', 'Confident guide', 'Soft storyteller']} /><SettingSelect label="Language" value="English" onChange={() => {}} options={['English', 'Urdu', 'Hindi']} /><SettingSelect label="Mood" value="Clear" onChange={() => {}} options={['Clear', 'Energetic', 'Calm']} /></div>{error && <div className="error-banner"><X size={16} />{error}</div>}<button className="generate-button" onClick={generate} disabled={busy}>{busy ? <><span className="button-spinner" /> Generating voice...</> : <><Mic2 size={17} /> Generate voice</>}</button></section><section className="result-column">{busy ? <LoadingState type="voice track" /> : result ? <div className="result-panel"><div className="audio-result"><Mic2 size={30} /><strong>Your voice track is ready</strong><audio src={result} controls /></div></div> : <div className="empty-result"><div className="empty-glyph"><Mic2 size={25} /></div><strong>Your voice track will appear here</strong><span>Write a short script and choose a voice to begin.</span></div>}</section></div></div>;
-}
-
 function Explore({ setPage }) {
-  return <div className="page-content"><div className="hero-banner"><div><span className="eyebrow accent">THE NEW CREATIVE SPACE</span><h2>Make images that<br /><em>feel like something.</em></h2><p>Explore a world of visual possibilities, then make one of your own.</p><button className="primary-button" onClick={() => setPage('image')}>Start creating <ArrowUpRight size={16} /></button></div><div className="hero-art"><div className="hero-orb" /><span>01 / 04</span></div></div><div className="section-heading"><div><span className="eyebrow">CURATED FOR YOU</span><h2>Find your next direction</h2></div><button className="text-button">View all <ArrowUpRight size={15} /></button></div><div className="inspiration-grid">{inspiration.map((item) => <article className="inspiration-card" key={item.title}><img src={item.image} alt="" /><div className="card-shade" /><div className="card-copy"><span>{item.meta}</span><strong>{item.title}</strong></div><button className="card-action" onClick={() => setPage(item.meta.startsWith('Video') ? 'video' : 'image')} aria-label={`Use ${item.title}`}><ArrowUpRight size={17} /></button></article>)}</div><div className="section-heading compact"><div><span className="eyebrow">QUICK START</span><h2>Start with a template</h2></div><button className="text-button" onClick={() => setPage('templates')}>Browse templates <ArrowUpRight size={15} /></button></div><div className="template-strip">{templates.slice(0, 3).map((item) => <button className="template-mini" key={item.title} onClick={() => setPage(item.type === 'Video' ? 'video' : 'image')}><img src={item.image} alt="" /><span><small>{item.type}</small><strong>{item.title}</strong></span><ArrowUpRight size={15} /></button>)}</div></div>;
+  const workspaceOptions = [
+    { id: 'image', label: 'Image studio', description: 'Create logos, posters, and campaign visuals.', icon: ImageIcon },
+    { id: 'video', label: 'Video studio', description: 'Turn a product direction into motion.', icon: Film },
+    { id: 'templates', label: 'Templates', description: 'Browse reusable directions from MongoDB.', icon: WandSparkles },
+    { id: 'history', label: 'Library', description: 'Revisit designs saved by the backend.', icon: Clock3 },
+  ];
+  return <div className="page-content"><div className="hero-banner"><div className="hero-copy"><span className="eyebrow accent">A QUIET PLACE TO MAKE</span><h2>Build the visual<br /><em>before the meeting.</em></h2><p>Javeria's studio turns a rough direction into a useful creative asset. Every generated design is saved through the connected API.</p><div className="hero-signal" aria-hidden="true"><span /><span /><span /><span /><span /></div></div></div><section className="workspace-options" aria-labelledby="workspace-options-title"><div className="section-heading"><div><span className="eyebrow">YOUR TOOLKIT</span><h2 id="workspace-options-title">Choose a workspace</h2></div><span className="workspace-status">API connected · MongoDB library</span></div><div className="workspace-option-grid">{workspaceOptions.map(({ id, label, description, icon }) => <button className="workspace-option-card landing-feature-card" key={id} onClick={() => setPage(id)}><span className="workspace-option-icon">{createElement(icon, { size: 22 })}</span><span className="workspace-option-copy"><strong>{label}</strong><small>{description}</small></span><ArrowUpRight size={17} className="workspace-option-arrow" /></button>)}</div></section></div>;
 }
 
 function Templates({ setPage }) {
   const [remote, setRemote] = useState([]); const [error, setError] = useState('');
-  useEffect(() => { templateAPI.getAll().then((items) => setRemote(Array.isArray(items) ? items : [])).catch(() => setError('Showing curated templates. Connect the backend to load your library.')); }, []);
-  return <div className="page-content"><div className="page-intro"><div><span className="eyebrow accent">CREATIVE TOOLS</span><h2>Effects & templates</h2><p>Start with a strong point of view, then make it yours.</p></div><button className="primary-button" onClick={() => setPage('image')}><Plus size={16} /> New creation</button></div>{error && <div className="notice-banner">{error}</div>}<div className="template-gallery">{templates.map((item) => <article className="gallery-card" key={item.title}><img src={item.image} alt="" /><div className="gallery-card-copy"><span>{item.type}</span><strong>{item.title}</strong><button className="secondary-button" onClick={() => setPage(item.type === 'Video' ? 'video' : 'image')}>Use template <ArrowUpRight size={14} /></button></div></article>)}{remote.slice(0, 4).map((item, index) => <article className="gallery-card" key={item._id || index}><img src={item.previewUrl || item.cloudinaryUrl || templates[index % templates.length].image} alt="" /><div className="gallery-card-copy"><span>Library</span><strong>{item.name || item.title || 'Saved template'}</strong><button className="secondary-button" onClick={() => setPage('image')}>Use template <ArrowUpRight size={14} /></button></div></article>)}</div></div>;
+  useEffect(() => { templateAPI.getAll().then(setRemote).catch((templateError) => setError(templateError.message || 'Unable to load templates from the backend.')); }, []);
+  return <div className="page-content"><div className="page-intro"><div><span className="eyebrow accent">CONNECTED LIBRARY</span><h2>Templates from MongoDB</h2><p>Use a saved direction as the starting point for your next asset.</p></div><button className="primary-button" onClick={() => setPage('image')}><Plus size={16} /> New creation</button></div>{error && <div className="notice-banner">{error}</div>}{remote.length ? <div className="template-gallery">{remote.map((item) => <article className="gallery-card" key={item.id}><img src={item.previewUrl} alt={item.name || 'Saved template'} /><div className="gallery-card-copy"><span>{item.mediaType || 'template'} · {item.category || 'general'}</span><strong>{item.name || 'Saved template'}</strong><button className="secondary-button" onClick={() => setPage('image')}>Use template <ArrowUpRight size={14} /></button></div></article>)}</div> : !error && <div className="large-empty"><Layers3 size={25} /><h3>No templates yet</h3><p>Seed or create templates through the Flask API to see them here.</p></div>}</div>;
 }
 
-function History({ gallery, setPage }) {
-  return <div className="page-content"><div className="page-intro"><div><span className="eyebrow accent">YOUR WORK</span><h2>My creations</h2><p>Everything you make, ready to revisit.</p></div><button className="primary-button" onClick={() => setPage('image')}><Plus size={16} /> New creation</button></div>{gallery.length ? <div className="history-grid">{gallery.map((item) => <article className="history-card" key={item.id}><div className="history-media">{item.type === 'video' ? <video src={item.url} muted /> : <img src={item.url} alt="" />}</div><div className="history-copy"><span>{item.type} · {new Date(item.createdAt).toLocaleDateString()}</span><strong>{item.prompt?.slice(0, 48) || 'Untitled creation'}</strong><button className="icon-button"><MoreHorizontal size={17} /></button></div></article>)}</div> : <div className="large-empty"><Clock3 size={25} /><h3>Your gallery is waiting</h3><p>Generate an image or video and it will be saved here automatically.</p><button className="secondary-button" onClick={() => setPage('image')}>Create your first piece <ArrowUpRight size={15} /></button></div>}</div>;
+function History({ designs, setPage }) {
+  return <div className="page-content"><div className="page-intro"><div><span className="eyebrow accent">MONGODB LIBRARY</span><h2>Saved designs</h2><p>These assets are loaded from the backend, not browser mock data.</p></div><button className="primary-button" onClick={() => setPage('image')}><Plus size={16} /> New creation</button></div>{designs.length ? <div className="history-grid">{designs.map((item) => <article className="history-card" key={item._id || item.id}><div className="history-media"><img src={item.cloudinaryUrl || item.url} alt={item.brandName || 'Generated design'} /></div><div className="history-copy"><span>{item.type || 'design'} · {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'recent'}</span><strong>{item.brandName || item.prompt?.slice(0, 48) || 'Untitled design'}</strong><button className="icon-button" aria-label="Saved design"><MoreHorizontal size={17} /></button></div></article>)}</div> : <div className="large-empty"><Clock3 size={25} /><h3>Your library is waiting</h3><p>Generate a design and it will be saved to MongoDB through the Flask API.</p><button className="secondary-button" onClick={() => setPage('image')}>Create your first piece <ArrowUpRight size={15} /></button></div>}</div>;
 }
 
 export default function HiggsfieldApp() {
-  const [page, setPage] = useState('explore'); const [collapsed, setCollapsed] = useState(false); const [mobileOpen, setMobileOpen] = useState(false); const [gallery, setGallery] = useState(readGallery);
-  const go = (next) => { setPage(next); setMobileOpen(false); };
-  return <div className="app-shell"><div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}><Sidebar page={page} setPage={go} collapsed={false} setCollapsed={() => setMobileOpen(false)} /></div><Sidebar page={page} setPage={go} collapsed={collapsed} setCollapsed={setCollapsed} /><main className="main-area"><Topbar page={page} onMenu={() => setMobileOpen(true)} />{page === 'explore' && <Explore setPage={go} />}{page === 'image' && <ImageStudio onSaved={setGallery} />}{page === 'video' && <VideoStudio onSaved={setGallery} />}{page === 'voice' && <VoiceStudio />}{page === 'templates' && <Templates setPage={go} />}{page === 'history' && <History gallery={gallery} setPage={go} />}</main></div>;
+  const [page, setPage] = useState('explore'); const [designs, setDesigns] = useState([]); const [loadError, setLoadError] = useState(''); const [isDark, setIsDark] = useState(false);
+  useEffect(() => { designAPI.getDesigns().then(setDesigns).catch((designError) => setLoadError(designError.message || 'Backend is unavailable.')); }, []);
+  const go = (next) => setPage(next);
+  const handleSavedDesign = async () => {
+    try {
+      setDesigns(await designAPI.getDesigns());
+    } catch (designError) {
+      setLoadError(designError.message || 'The design was generated, but the library could not refresh.');
+    }
+  };
+  return <div className={`app-shell ${isDark ? 'theme-dark' : 'theme-light'}`}><main className="main-area"><Topbar page={page} onNavigate={go} isDark={isDark} onToggleTheme={() => setIsDark((current) => !current)} />{loadError && <div className="notice-banner global-notice">{loadError}</div>}{page === 'explore' && <Explore setPage={go} />}{page === 'image' && <ImageStudio onSaved={handleSavedDesign} />}{page === 'video' && <VideoStudio onSaved={() => {}} />}{page === 'templates' && <Templates setPage={go} />}{page === 'history' && <History designs={designs} setPage={go} />}</main><Footer /></div>;
 }

@@ -55,6 +55,10 @@ export const generateVideoAsset = async (prompt) => {
 
 export const generateAndSaveImage = async (prompt, type = 'poster', options = {}) => {
   const url = await generateMarketingImage(prompt, type, options);
+  return saveGeneratedImage(url, prompt, type);
+};
+
+export const saveGeneratedImage = (url, prompt, type = 'poster') => {
   const entry = {
     id: crypto.randomUUID(),
     url,

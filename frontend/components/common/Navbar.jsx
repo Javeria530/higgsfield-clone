@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import ThemeToggle from "./ThemeToggle";
-import { Rocket } from "lucide-react";
+import { BarChart3, Calendar, Image, Layers, Rocket, Users, Video } from "lucide-react";
 
 const Navbar = ({ onNavigate, showAuthButtons = true }) => {
   const [scrolled, setScrolled] = useState(false);
@@ -14,7 +14,14 @@ const Navbar = ({ onNavigate, showAuthButtons = true }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const textColor = colors.text1;
+  const landingOptions = [
+    { label: "Video", icon: Video, target: "login", feature: "AI Video Generator" },
+    { label: "Design", icon: Image, target: "login", feature: "Logo & Poster Design" },
+    { label: "Templates", icon: Layers, target: "login", feature: "Template Manager" },
+    { label: "Analytics", icon: BarChart3, target: "login", feature: "Analytics Dashboard" },
+    { label: "Team", icon: Users, target: "login", feature: "Team Collaboration" },
+    { label: "Schedule", icon: Calendar, target: "login", feature: "Social Scheduler" },
+  ];
 
   return (
     <nav
@@ -84,7 +91,36 @@ const Navbar = ({ onNavigate, showAuthButtons = true }) => {
       </div>
 
       {/* Navigation Buttons */}
-      <div style={{ display: "flex", gap: "1.2rem", alignItems: "center" }}>
+      {/* Landing navigation options */}
+      <div className="landing-nav-options" style={{ display: "flex", gap: "0.45rem", alignItems: "center" }}>
+        {landingOptions.map(({ label, icon, target, feature }) => (
+          <button
+            key={label}
+            className="landing-option-button"
+            title={label}
+            aria-label={label}
+            onClick={() => {
+              localStorage.setItem("targetFeature", feature);
+              onNavigate(target);
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "9px 10px",
+              border: `1px solid ${colors.border}`,
+              borderRadius: 9,
+              background: mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.7)",
+              color: mode === "light" ? "#000" : colors.text1,
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {React.createElement(icon, { size: 15 })}
+            <span>{label}</span>
+          </button>
+        ))}
         <ThemeToggle />
         {showAuthButtons && (
           <>

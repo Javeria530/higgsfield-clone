@@ -12,14 +12,12 @@ import AddEditUserModal from "../components/Dashboard/AddEditUserModal";
 import ManageUsersPage from "../components/ManageUsers/ManageUsersPage";
 import TemplateManager from "../components/TemplateManager/TemplateManager";
 import VideoAdModule from "../components/Dashboard/VideoAdModule";
-import VoiceoverModule from "../components/Dashboard/VoiceoverModule";
 import Footer from "../components/common/Footer";
 import SocialMediaPublisher from "../components/Dashboard/SocialMediaPublisher";
 
 const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
   // Video Ad Module state
   const [showVideoAdModule, setShowVideoAdModule] = useState(false);
-  const [showVoiceoverModule, setShowVoiceoverModule] = useState(false);
   // Social Media Publisher state
   const [showSocialMediaPublisher, setShowSocialMediaPublisher] = useState(false);
   const [socialMediaContent, setSocialMediaContent] = useState({ url: '', type: 'image' });
@@ -91,9 +89,6 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
         case 'image':
           setShowProductForm(true);
           break;
-        case 'voiceover':
-          setShowVoiceoverModule(true);
-          break;
         default:
           break;
       }
@@ -103,7 +98,6 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
   const allTools = [
     { icon: Sparkles, name: "Logo & Poster Designer", color: "#00D9FF", description: "Create stunning logos and posters", featureId: "logo", action: () => setShowProductForm(true) },
     { icon: Video, name: "AI Video Maker", color: "#7C3AED", description: "Generate professional videos", featureId: "video", action: () => setShowVideoAdModule(true) },
-    { icon: Zap, name: "Voiceover Maker", color: "#10B981", description: "Create voice narrations", featureId: "voiceover", action: () => setShowVoiceoverModule(true) },
     { icon: BarChart3, name: "Analytics", color: "#EF4444", description: "Track your performance", featureId: "analytics", action: () => onNavigate("analytics") },
     { icon: Layers, name: "Template Manager", color: "#F472B6", description: "Organize and manage templates", featureId: "templates", action: () => setCurrentView("templates") },
     // Only show user management to Admin head users
@@ -338,21 +332,6 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
     onLogout && onLogout();
   };
 
-  const resetProductForm = () => {
-    setShowProductForm(false);
-    setSelectedImages([]);
-    setShowCaptionBox(false);
-    setNameValue("");
-    setDescriptionValue("");
-    setAdType("logo");
-    setColors2(["#0ea5e9", "#111827"]);
-    setStyle("modern, minimal");
-    setSize("1024x1024");
-    setGeneratedResult(null);
-    setPriceValue("");
-    setCaptionType("without_caption");
-  };
-
   return (
     <div style={{ minHeight: "100vh", background: colors.bg1, fontFamily: "Arial", transition: "background 0.3s" }}>
       {/* Video Ad Module Modal/Page */}
@@ -365,15 +344,6 @@ const Dashboard = ({ onLogout, onNavigate, pageParams = {} }) => {
         </div>
       )}
 
-      {/* Voiceover Module Modal */}
-      {showVoiceoverModule && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", zIndex: 1000, overflow: "auto", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: "95%", maxWidth: 1000, margin: "auto", background: colors.bg2, borderRadius: 32, boxShadow: "0 24px 60px rgba(0,0,0,0.4)", padding: 48, position: "relative", border: `1px solid ${colors.border}`, animation: 'fadeIn 0.4s ease-out' }}>
-            <button style={{ position: 'absolute', top: 24, right: 24, fontSize: 24, background: mode === 'dark' ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", border: "none", cursor: "pointer", color: colors.text2, width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onClick={() => setShowVoiceoverModule(false)}>&times;</button>
-            <VoiceoverModule />
-          </div>
-        </div>
-      )}
       <style>{`
         @keyframes spinFast {
           0% { transform: rotate(0deg); }

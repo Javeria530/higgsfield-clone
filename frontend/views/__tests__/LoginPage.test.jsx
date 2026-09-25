@@ -5,6 +5,24 @@ import { ThemeProvider } from '../../context/ThemeContext'
 import LoginPage from '../LoginPage'
 
 describe('LoginPage', () => {
+  beforeEach(() => {
+    vi.spyOn(global, 'fetch').mockImplementation(async (_url, options = {}) => {
+      const body = JSON.parse(options.body || '{}')
+      const isValid = body.email === 'admin@smartads.com' && body.password === 'Admin@123'
+
+      return new Response(JSON.stringify(isValid
+        ? { success: true, user: { id: 'admin-1', email: body.email, fullName: 'Admin User', role: 'Admin' } }
+        : { success: false, error: 'Invalid credentials' }), {
+        status: isValid ? 200 : 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   test('successful login navigates to dashboard', async () => {
     const onNavigate = vi.fn()
 

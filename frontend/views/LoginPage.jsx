@@ -61,8 +61,6 @@ const LoginPage = ({ onNavigate }) => {
               onNavigate && onNavigate("dashboard", { tab: "video" });
             } else if (targetFeature === "Logo & Poster Design") {
               onNavigate && onNavigate("dashboard", { tab: "image" });
-            } else if (targetFeature === "Voiceover Creator") {
-              onNavigate && onNavigate("dashboard", { tab: "voiceover" });
             } else {
               onNavigate && onNavigate('dashboard');
             }
@@ -104,8 +102,6 @@ const LoginPage = ({ onNavigate }) => {
         onNavigate && onNavigate("dashboard", { tab: "video" });
       } else if (targetFeature === "Logo & Poster Design") {
         onNavigate && onNavigate("dashboard", { tab: "image" });
-      } else if (targetFeature === "Voiceover Creator") {
-        onNavigate && onNavigate("dashboard", { tab: "voiceover" });
       } else {
         onNavigate && onNavigate("dashboard");
       }

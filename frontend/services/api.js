@@ -138,8 +138,10 @@ export const productAPI = {
  * Template API endpoints
  */
 export const templateAPI = {
-  getAll: () =>
-    apiRequest('/api/templates'),
+  getAll: async () => {
+    const response = await apiRequest('/api/templates');
+    return response.templates || [];
+  },
 
   create: (data) =>
     apiRequest('/api/templates', {
@@ -206,18 +208,6 @@ export const videoAdAPI = {
 };
 
 /**
- * Voice API endpoints
- */
-export const voiceAPI = {
-  // Generate voice via Eleven Labs — accepts { text: "...", voice_id: "..." }
-  generateVoice: (data) =>
-    apiRequest('/api/generate-voice', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-};
-
-/**
  * Social Media API endpoints
  */
 export const socialMediaAPI = {
@@ -251,6 +241,5 @@ export default {
   product: productAPI,
   template: templateAPI,
   videoAd: videoAdAPI,
-  voice: voiceAPI,
   socialMedia: socialMediaAPI,
 };

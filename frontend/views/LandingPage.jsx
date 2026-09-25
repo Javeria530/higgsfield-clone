@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Video, Image, Zap, Calendar, BarChart3, ArrowRight, Rocket, Layers, Users } from "lucide-react";
+import React, { createElement, useState } from "react";
+import { Video, Image, Calendar, BarChart3, ArrowRight, Rocket, Layers, Users } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
@@ -11,7 +11,7 @@ const LandingPage = ({ onNavigate }) => {
   const features = [
     { icon: Video, title: "AI Video Generator", desc: "Create professional videos automatically from your product descriptions.", color: colors.primary },
     { icon: Image, title: "Logo & Poster Design", desc: "Generate stunning marketing assets and brand identities instantly.", color: colors.secondary },
-    { icon: Zap, title: "Voiceover Creator", desc: "Natural-sounding voiceovers with various accents and tones.", color: colors.accent },
+    { icon: Layers, title: "Template Manager", desc: "Organize reusable campaign directions from your connected library.", color: "#248496" },
     { icon: Calendar, title: "Social Scheduler", desc: "Plan and post your content directly to all social platforms.", color: "#10B981" },
     { icon: BarChart3, title: "Analytics Dashboard", desc: "Track conversions and performance metrics in real-time.", color: "#F59E0B" },
     { icon: Users, title: "Team Collaboration", desc: "Invite members and manage permissions across projects.", color: "#3B82F6" },
@@ -79,7 +79,7 @@ const LandingPage = ({ onNavigate }) => {
           lineHeight: 1.6,
           marginBottom: 48,
         }}>
-          SmartAds empowers your team to generate high-converting videos, logos, and voiceovers in seconds. Professional design, accessible to everyone.
+          Frameboard helps your team create high-converting visuals, videos, templates, and campaigns in seconds.
         </p>
 
         <div className="animate-slideUp" style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
@@ -158,6 +158,7 @@ const LandingPage = ({ onNavigate }) => {
           {features.map((f, i) => (
             <div
               key={i}
+              className="landing-feature-card"
               onClick={() => {
                 // Store the feature being accessed for post-login redirect
                 localStorage.setItem('targetFeature', f.title);
@@ -187,7 +188,7 @@ const LandingPage = ({ onNavigate }) => {
                 marginBottom: 24,
                 border: `1px solid ${colors.border}`,
               }}>
-                <f.icon size={24} color={f.color} />
+                {createElement(f.icon, { size: 24, color: f.color, className: "landing-feature-icon" })}
               </div>
 
               <h3 style={{ fontSize: "1.4rem", fontWeight: "700", marginBottom: 12, color: colors.text1, fontFamily: "'Outfit', sans-serif" }}>
